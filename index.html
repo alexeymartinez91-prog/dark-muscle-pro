@@ -155,7 +155,7 @@ const ss=sessions();return title("REGISTRO","TU HISTORIAL.","Cada sesión constr
 }
 window.viewSession=function(id){const s=data.sessions.find(x=>x.id===id);const el=document.getElementById("detail-"+id);if(!s||!el)return;el.innerHTML=`<div class="section tablewrap"><table><thead><tr><th>Ejercicio</th><th>Series válidas</th><th>Volumen</th></tr></thead><tbody>${s.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.sets.filter(x=>Number(x.kg)>0&&Number(x.reps)>0).length}</td><td>${Math.round(e.sets.reduce((n,x)=>n+(+x.kg||0)*(+x.reps||0),0))}</td></tr>`).join("")}</tbody></table></div>`};
 window.deleteSession=function(id){if(!confirm("¿Eliminar definitivamente esta sesión guardada?"))return;data.sessions=data.sessions.filter(s=>s.id!==id);save();render()};
-const rankNames=["IRON","BRONZE","SILVER","GOLD","RUBY","EMERALD","DIAMOND","CHAMPION","SYMMETRIC"];
+
 
 const rankNames = [
   "IRON", "BRONZE", "SILVER", "GOLD", "RUBY",
