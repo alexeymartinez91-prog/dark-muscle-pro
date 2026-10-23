@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090909">
+<title>DARK MUSCLE PRO</title>
+<style>
+:root{--bg:#090909;--panel:#131313;--panel2:#191919;--red:#ed2029;--muted:#929292;--line:#292929;--white:#f4f4f4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1400px;margin:auto;min-height:100vh}
+header{height:76px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;background:#090909f2;z-index:5}
+.brand{font-weight:950;letter-spacing:1.4px;font-size:19px}.brand span{color:var(--red)}
+.brand small{display:block;font-size:9px;color:#999;letter-spacing:4px}
+.pill{border:1px solid #3a1719;color:#ff686d;background:#211012;border-radius:30px;padding:7px 12px;font-size:11px;font-weight:800}
+.layout{display:grid;grid-template-columns:215px minmax(0,1fr);min-height:calc(100vh - 76px)}
+aside{padding:25px 14px;border-right:1px solid var(--line)}
+.navlabel{color:#686868;font-size:10px;font-weight:800;letter-spacing:2px;padding:10px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;color:#aaa;border:0;padding:13px 12px;border-radius:9px;margin:3px 0}
+.nav.active,.nav:hover{background:#251012;color:#fff}.nav.active{box-shadow:inset 3px 0 var(--red)}
+main{padding:28px;min-width:0}
+.eyebrow{color:var(--red);font-weight:900;letter-spacing:2px;font-size:10px}
+h1{font-size:clamp(26px,4vw,39px);line-height:1.12;margin:7px 0 8px;letter-spacing:-1px}
+h2{font-size:18px;margin:0 0 14px}h3{font-size:14px;margin:0 0 10px}
+.sub{color:var(--muted);margin:0 0 23px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:20px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px;min-width:0}
+.statlabel{font-size:11px;color:#999}.stat{font-size:29px;font-weight:900;margin:8px 0 2px;letter-spacing:-1px}.stat span{font-size:12px;color:#888;letter-spacing:0}
+.red{color:var(--red)}.muted{color:var(--muted)}.small{font-size:12px}
+.hero{border:1px solid #401518;background:linear-gradient(120deg,#241012,#111 65%);padding:25px;border-radius:15px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.hero h2{font-size:24px;margin:6px 0}.hero p{color:#bbb;margin:0}
+.btn{border:0;background:var(--red);color:white;padding:11px 15px;border-radius:8px;font-weight:850}
+.btn:hover{background:#ff3942}.btn.secondary{background:#242424;border:1px solid #393939}.btn.danger{background:#321214;border:1px solid #652025}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.section{margin-top:25px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.exercise{padding:15px 0;border-bottom:1px solid var(--line)}.exercise:last-child{border-bottom:0}
+.exname{font-weight:800}.tag{font-size:10px;border:1px solid #393939;border-radius:5px;padding:3px 7px;color:#aaa}
+input,select{background:#0d0d0d;color:#eee;border:1px solid #363636;padding:10px;border-radius:7px;width:100%;min-width:0}
+label{display:block;font-size:11px;color:#aaa;margin-bottom:6px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{margin-bottom:13px}.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:#999;font-weight:700}td input{width:76px;padding:8px}
+.empty{padding:25px 10px;text-align:center;color:#777}
+.progress{height:6px;background:#2a2a2a;border-radius:10px;overflow:hidden;margin-top:10px}
+.progress div{height:100%;background:var(--red);width:0}
+.bottomnav{display:none}
+footer{color:#555;text-align:center;padding:25px;font-size:10px;letter-spacing:1px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#252525;border:1px solid #444;padding:12px 18px;border-radius:9px;z-index:20;display:none}
+@media(max-width:850px){.layout{grid-template-columns:1fr}aside{display:none}main{padding:20px 15px 90px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}header{padding:0 15px;height:66px}.hero{align-items:flex-start;flex-direction:column}.bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#101010;border-top:1px solid #333;z-index:10;justify-content:space-around;padding:8px 2px calc(8px + env(safe-area-inset-bottom))}.bottomnav button{border:0;background:none;color:#aaa;font-size:10px;padding:5px}.bottomnav button.active{color:#ff454d}.bottomnav span{display:block;font-size:18px}.stat{font-size:25px}}
+@media(max-width:390px){.formgrid{grid-template-columns:1fr}.grid{gap:9px}.card{padding:13px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">DARK<span> MUSCLE</span><small>PRO TRAINING SYSTEM</small></div>
+  <div class="pill">● SISTEMA PERSONAL</div>
+</header>
+<div class="layout">
+<aside>
+  <div class="navlabel">CENTRO DE CONTROL</div>
+  <button class="nav active" data-page="home">◈ &nbsp; Dashboard</button>
+  <button class="nav" data-page="workout">▤ &nbsp; Entrenamiento</button>
+  <button class="nav" data-page="history">◷ &nbsp; Historial</button>
+  <button class="nav" data-page="ranks">◆ &nbsp; Rangos</button>
+  <button class="nav" data-page="body">◎ &nbsp; Seguimiento corporal</button>
+  <button class="nav" data-page="profile">⚙ &nbsp; Perfil y datos</button>
+  <div class="card" style="margin-top:28px">
+    <div class="eyebrow">DISCIPLINA</div>
+    <p style="font-weight:800;margin-bottom:5px">Cada serie cuenta.</p>
+    <p class="muted small" style="margin:0">Registra. Progresa. Repite.</p>
+  </div>
+</aside>
+<main id="main"></main>
+</div>
+<nav class="bottomnav">
+  <button data-page="home" class="active"><span>◈</span>Inicio</button>
+  <button data-page="workout"><span>▤</span>Entrenar</button>
+  <button data-page="history"><span>◷</span>Historial</button>
+  <button data-page="ranks"><span>◆</span>Rangos</button>
+  <button data-page="body"><span>◎</span>Progreso</button>
+</nav>
+<footer>DARK MUSCLE PRO · BUILD 0.1 · ENTRENA CON INTENCIÓN</footer>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+const KEY="dmt-pro-test-v1";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+const defaults=()=>({
+version:1,profile:{name:"",weight:79.8,height:184,goal:"Hipertrofia",level:"Intermedio"},
+sessions:[],measurements:[],routine:[
+{name:"Press de banca",muscle:"Pecho",sets:3,reps:8},
+{name:"Press inclinado con mancuernas",muscle:"Pecho",sets:3,reps:10},
+{name:"Jalón al pecho",muscle:"Espalda",sets:3,reps:10},
+{name:"Elevaciones laterales",muscle:"Hombros",sets:3,reps:15},
+{name:"Curl de bíceps",muscle:"Bíceps",sets:3,reps:12},
+{name:"Extensión de tríceps en polea",muscle:"Tríceps",sets:3,reps:12},
+{name:"Sentadilla",muscle:"Cuádriceps",sets:3,reps:8},
+{name:"Peso muerto rumano",muscle:"Isquios",sets:3,reps:10}
+]});
+let data;
+try{const raw=localStorage.getItem(KEY);data=raw?JSON.parse(raw):defaults();if(!data||data.version!==1)throw Error("Formato");}
+catch(e){data=defaults();}
+let page="home",activeSession=null;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){notify("No se pudo guardar. Comprueba el almacenamiento del navegador.");return false}}
+function notify(s){const t=$("#toast");t.textContent=s;t.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>t.style.display="none",2400)}
+function go(p){page=p;render();document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
+function title(kicker,title,desc){return `<div class="eyebrow">${kicker}</div><h1>${title}</h1><p class="sub">${desc}</p>`}
+function card(label,value,unit,foot=""){return `<div class="card"><div class="statlabel">${label}</div><div class="stat">${value} <span>${unit}</span></div><div class="muted small">${foot}</div></div>`}
+function sessions(){return [...data.sessions].sort((a,b)=>b.date.localeCompare(a.date))}
+function completedSets(s){return (s.exercises||[]).reduce((n,e)=>n+(e.sets||[]).filter(x=>Number(x.kg)>0&&Number(x.reps)>0).length,0)}
+function totalVolume(s){return (s.exercises||[]).reduce((n,e)=>n+(e.sets||[]).reduce((v,x)=>v+(Number(x.kg)||0)*(Number(x.reps)||0),0),0)}
+function home(){
+const ss=sessions(),last=ss[0],week=new Date();week.setDate(week.getDate()-6);
+const recent=ss.filter(s=>new Date(s.date+"T12:00:00")>=week);
+const vol=recent.reduce((n,s)=>n+totalVolume(s),0);
+return title("PANEL PRINCIPAL","BUILD YOUR LEGACY.","Tu entrenamiento empieza aquí. Cada dato cuenta.")
++`<div class="hero"><div><div class="eyebrow">DARK MUSCLE / SYSTEM ONLINE</div><h2>NO EXCUSES. JUST PROGRESS.</h2><p>Construye fuerza, registra el trabajo y mide tu evolución.</p></div><button class="btn" onclick="startWorkout()">＋ INICIAR ENTRENAMIENTO</button></div>`
++`<div class="grid">${card("SESIONES TOTALES",data.sessions.length,"sesiones","Todo tu historial registrado")}${card("SERIES REGISTRADAS",data.sessions.reduce((n,s)=>n+completedSets(s),0),"series","Con peso y repeticiones")}${card("VOLUMEN · 7 DÍAS",Math.round(vol).toLocaleString("es-ES"),"kg·reps","Suma de carga × repeticiones")}${card("PESO CORPORAL",Number(data.profile.weight||0).toLocaleString("es-ES"),"kg","Último peso guardado")}</div>`
++`<div class="section card"><div class="row"><h2>Último entrenamiento</h2><span class="tag">${last?esc(last.date):"SIN DATOS"}</span></div>${last?`<p><b>${esc(last.name)}</b></p><p class="muted small">${completedSets(last)} series completadas · ${Math.round(totalVolume(last)).toLocaleString("es-ES")} kg·reps</p>`:`<div class="empty">Todavía no has registrado sesiones. ¡Vamos a por la primera!</div>`}<div class="actions"><button class="btn secondary" onclick="go('history')">Ver historial</button><button class="btn secondary" onclick="go('ranks')">Consultar rangos</button></div></div>`
++`<div class="section card"><h2>Tu hoja de ruta</h2><div class="exercise"><b>01 · Registrar</b><p class="muted small">Anota series, repeticiones, carga y esfuerzo.</p></div><div class="exercise"><b>02 · Comparar</b><p class="muted small">Revisa tus sesiones anteriores y récords.</p></div><div class="exercise"><b>03 · Progresar</b><p class="muted small">Aumenta el rendimiento de forma gradual, sin sacrificar técnica.</p></div></div>`;
+}
+window.startWorkout=function(){activeSession={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:today(),name:"Entrenamiento",exercises:[]};go("workout")};
+function workout(){
+if(!activeSession)return title("ZONA DE ENTRENAMIENTO","A ENTRENAR.","Registra el trabajo real, serie a serie.")
++`<div class="card"><h2>Comienza una sesión</h2><div class="field"><label>Nombre de la sesión</label><input id="newname" placeholder="Ej. Torso A · Hipertrofia" value="Torso A"></div><div class="actions"><button class="btn" onclick="beginSession()">＋ NUEVA SESIÓN</button><button class="btn secondary" onclick="loadRoutine()">Cargar ejercicios base</button></div></div>`
++`<div class="section card"><h2>Cómo registrar</h2><p class="muted">Introduce la carga en kg, repeticiones y RIR de cada serie. Las series sin datos no cuentan como completadas.</p></div>`;
+return title("ZONA DE ENTRENAMIENTO","SESSION ACTIVE.","Registra cada serie y guarda la sesión al terminar.")
++`<div class="card"><div class="formgrid"><div class="field"><label>Nombre de la sesión</label><input id="sessionname" value="${esc(activeSession.name)}" onchange="activeSession.name=this.value"></div><div class="field"><label>Fecha</label><input type="date" value="${esc(activeSession.date)}" onchange="activeSession.date=this.value"></div></div><div class="row"><span class="muted small">${activeSession.exercises.length} ejercicios · ${completedSets(activeSession)} series completadas</span><button class="btn secondary" onclick="addExercise()">＋ Ejercicio</button></div></div>`
++activeSession.exercises.map((e,i)=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(e.muscle||"OTRO GRUPO")}</div><h2>${esc(e.name)}</h2></div><button class="btn danger" onclick="removeExercise(${i})">Eliminar</button></div><div class="tablewrap"><table><thead><tr><th>Serie</th><th>Kg</th><th>Reps</th><th>RIR</th><th></th></tr></thead><tbody>${e.sets.map((s,j)=>`<tr><td>${j+1}</td><td><input aria-label="Kilos" type="number" min="0" step="0.5" value="${esc(s.kg)}" onchange="setValue(${i},${j},'kg',this.value)"></td><td><input aria-label="Repeticiones" type="number" min="0" step="1" value="${esc(s.reps)}" onchange="setValue(${i},${j},'reps',this.value)"></td><td><input aria-label="RIR" type="number" min="0" max="10" step="1" value="${esc(s.rir)}" onchange="setValue(${i},${j},'rir',this.value)"></td><td><button class="btn secondary" onclick="removeSet(${i},${j})">×</button></td></tr>`).join("")}</tbody></table></div><div class="actions"><button class="btn secondary" onclick="addSet(${i})">＋ Serie</button></div></div>`).join("")
++`<div class="actions"><button class="btn" onclick="finishWorkout()">GUARDAR ENTRENAMIENTO</button><button class="btn secondary" onclick="activeSession=null;go('workout')">Descartar sesión</button></div>`;
+}
+window.beginSession=function(){const n=$("#newname")?.value.trim()||"Entrenamiento";activeSession={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:today(),name:n,exercises:[]};go("workout")};
+window.loadRoutine=function(){if(!activeSession)beginSession();activeSession.exercises=data.routine.slice(0,4).map(e=>({...e,sets:Array.from({length:e.sets},()=>({kg:"",reps:"",rir:2}))}));go("workout")};
+window.addExercise=function(){const name=prompt("Nombre del ejercicio:");if(!name?.trim())return;const muscle=prompt("Grupo muscular (ej. Pecho, Espalda, Cuádriceps):")||"Otro";activeSession.exercises.push({name:name.trim(),muscle,sets:[{kg:"",reps:"",rir:2},{kg:"",reps:"",rir:2},{kg:"",reps:"",rir:2}]});render()};
+window.removeExercise=function(i){activeSession.exercises.splice(i,1);render()};
+window.addSet=function(i){activeSession.exercises[i].sets.push({kg:"",reps:"",rir:2});render()};
+window.removeSet=function(i,j){activeSession.exercises[i].sets.splice(j,1);render()};
+window.setValue=function(i,j,k,v){activeSession.exercises[i].sets[j][k]=v};
+window.finishWorkout=function(){if(!activeSession)return;if(!activeSession.exercises.length){notify("Añade al menos un ejercicio antes de guardar.");return}if(!completedSets(activeSession)){notify("Registra al menos una serie con kg y repeticiones.");return}data.sessions.push(JSON.parse(JSON.stringify(activeSession)));if(save()){activeSession=null;notify("Entrenamiento guardado correctamente.");go("history")}};
+function historyPage(){
+const ss=sessions();return title("REGISTRO","TU HISTORIAL.","Cada sesión construye la siguiente.")
++(ss.length?ss.map(s=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(s.date)}</div><h2 style="margin:4px 0">${esc(s.name)}</h2></div><span class="tag">${completedSets(s)} series</span></div><div class="grid" style="margin-bottom:0">${card("EJERCICIOS",s.exercises.length,"")}${card("VOLUMEN",Math.round(totalVolume(s)).toLocaleString("es-ES"),"kg·reps")}</div><div class="actions"><button class="btn secondary" onclick="viewSession('${esc(s.id)}')">Ver detalles</button><button class="btn danger" onclick="deleteSession('${esc(s.id)}')">Eliminar</button></div><div id="detail-${esc(s.id)}"></div></div>`).join(""):`<div class="card empty">Aún no hay entrenamientos guardados.</div>`);
+}
+window.viewSession=function(id){const s=data.sessions.find(x=>x.id===id);const el=document.getElementById("detail-"+id);if(!s||!el)return;el.innerHTML=`<div class="section tablewrap"><table><thead><tr><th>Ejercicio</th><th>Series válidas</th><th>Volumen</th></tr></thead><tbody>${s.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.sets.filter(x=>Number(x.kg)>0&&Number(x.reps)>0).length}</td><td>${Math.round(e.sets.reduce((n,x)=>n+(+x.kg||0)*(+x.reps||0),0))}</td></tr>`).join("")}</tbody></table></div>`};
+window.deleteSession=function(id){if(!confirm("¿Eliminar definitivamente esta sesión guardada?"))return;data.sessions=data.sessions.filter(s=>s.id!==id);save();render()};
+const rankNames=["IRON","BRONZE","SILVER","GOLD","RUBY","EMERALD","DIAMOND","CHAMPION","SYMMETRIC"];
+function ranks(){
+const best={};data.sessions.forEach(s=>s.exercises.forEach(e=>{const valid=e.sets.filter(x=>+x.kg>0&&+x.reps>0);if(!valid.length)return;const score=Math.max(...valid.map(x=>+x.kg*(1+(+x.reps)/30)));if(!best[e.name]||score>best[e.name].score)best[e.name]={score,muscle:e.muscle,name:e.name,sets:valid.length}}));
+const items=Object.values(best);return title("PERFORMANCE ENGINE","RANK SYSTEM.","Progresión personal provisional. No representa percentiles oficiales.")
++`<div class="card"><div class="eyebrow">TU CLASIFICACIÓN</div><h2>Un rango empieza con datos fiables.</h2><p class="muted small">El sistema registra el mejor rendimiento estimado por ejercicio. Los niveles de esta versión son hitos internos, no equivalencias oficiales con Symmetry.</p></div>`
++(items.length?items.map(e=>{const level=Math.max(0,Math.min(8,Math.floor(Math.log10(Math.max(1,e.score))*2)));const name=rankNames[level];return `<div class="section card"><div class="row"><div><h2>${esc(e.name)}</h2><div class="muted small">${esc(e.muscle)} · ${e.sets} series válidas en el mejor registro</div></div><span class="pill">${name}</span></div><div class="progress"><div style="width:${(level+1)/9*100}%"></div></div><p class="muted small">Mejor estimación registrada: ${e.score.toFixed(1)} puntos de carga-repeticiones.</p></div>`}).join(""):`<div class="section card empty">Registra tus entrenamientos para empezar a construir tu perfil de rendimiento.`)
++`<div class="section card"><h2>Cómo evolucionará este sistema</h2><p class="muted small">En próximas fases añadiremos divisiones, comparación ajustada al peso corporal, métricas específicas por ejercicio, volumen efectivo por músculo y requisitos mínimos de datos. No asignaremos un nivel fiable cuando no haya información suficiente.</p></div>`;
+}
+function bodyPage(){const ms=[...data.measurements].sort((a,b)=>b.date.localeCompare(a.date));return title("CONTROL FÍSICO","TRACK YOUR PHYSIQUE.","Registra tendencias, no solo un número aislado.")
++`<div class="card"><h2>Nueva medición</h2><form id="measureform"><div class="formgrid"><div class="field"><label>Fecha</label><input type="date" name="date" value="${today()}" required></div><div class="field"><label>Peso (kg)</label><input type="number" name="weight" min="0" max="400" step=".1" placeholder="79.8" required></div><div class="field"><label>Cintura (cm)</label><input type="number" name="waist" min="0" max="250" step=".1" placeholder="84"></div><div class="field"><label>Pecho (cm)</label><input type="number" name="chest" min="0" max="250" step=".1"></div><div class="field"><label>Brazo (cm)</label><input type="number" name="arm" min="0" max="100" step=".1"></div><div class="field"><label>Muslo (cm)</label><input type="number" name="thigh" min="0" max="150" step=".1"></div></div><button class="btn" type="submit">GUARDAR MEDICIÓN</button></form></div>`
++`<div class="section card"><h2>Evolución corporal</h2>${ms.length?`<div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Peso</th><th>Cintura</th><th>Pecho</th><th>Brazo</th><th>Muslo</th></tr></thead><tbody>${ms.map(m=>`<tr><td>${esc(m.date)}</td><td>${m.weight} kg</td><td>${m.waist||"—"}</td><td>${m.chest||"—"}</td><td>${m.arm||"—"}</td><td>${m.thigh||"—"}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Todavía no hay mediciones.</div>`}</div>`}
+function profile(){
+return title("CONFIGURACIÓN","TU PERFIL.","Define tus datos iniciales y mantén tu registro actualizado.")
++`<div class="card"><form id="profileform"><div class="formgrid"><div class="field"><label>Nombre o alias</label><input name="name" maxlength="60" value="${esc(data.profile.name)}" placeholder="Atleta"></div><div class="field"><label>Peso actual (kg)</label><input name="weight" type="number" min="0" max="400" step=".1" value="${esc(data.profile.weight)}" required></div><div class="field"><label>Altura (cm)</label><input name="height" type="number" min="0" max="260" value="${esc(data.profile.height)}" required></div><div class="field"><label>Objetivo principal</label><select name="goal">${["Hipertrofia","Fuerza","Mantenimiento","Pérdida de grasa","Rendimiento deportivo"].map(x=>`<option ${data.profile.goal===x?"selected":""}>${x}</option>`).join("")}</select></div><div class="field"><label>Experiencia</label><select name="level">${["Principiante","Intermedio","Avanzado"].map(x=>`<option ${data.profile.level===x?"selected":""}>${x}</option>`).join("")}</select></div></div><button class="btn">GUARDAR PERFIL</button></form></div>`
++`<div class="section card"><h2>Datos y privacidad</h2><p class="muted small">Los datos se guardan en el almacenamiento local de este navegador, bajo la clave independiente <code>dmt-pro-test-v1</code>. Borrar los datos del navegador puede eliminarlos; exporta copias de seguridad periódicamente.</p><div class="actions"><button class="btn secondary" onclick="exportData()">Exportar copia JSON</button><button class="btn secondary" onclick="document.getElementById('importfile').click()">Importar copia JSON</button><input id="importfile" type="file" accept=".json,application/json" hidden></div><div class="actions"><button class="btn danger" onclick="resetData()">Borrar datos de esta prueba</button></div></div>`;
+}
+window.exportData=function(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dark-muscle-pro-backup.json";a.click();URL.revokeObjectURL(a.href)};
+window.resetData=function(){if(!confirm("Esto borrará el perfil, sesiones y mediciones de DARK MUSCLE PRO en este navegador. ¿Continuar?"))return;data=defaults();activeSession=null;save();render();notify("Datos de prueba reiniciados.")};
+$("#main").addEventListener("submit",e=>{if(e.target.id==="measureform"){e.preventDefault();const f=new FormData(e.target);const m={};["date","weight","waist","chest","arm","thigh"].forEach(k=>{const v=f.get(k);m[k]=v===""?null:k==="date"?v:Number(v)});data.measurements.push(m);data.profile.weight=m.weight;save();render();notify("Medición guardada.")}if(e.target.id==="profileform"){e.preventDefault();const f=new FormData(e.target);data.profile={name:String(f.get("name")||""),weight:Number(f.get("weight")),height:Number(f.get("height")),goal:String(f.get("goal")),level:String(f.get("level"))};save();render();notify("Perfil actualizado.")}});
+$("#main").addEventListener("change",e=>{if(e.target.id==="importfile"){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);if(d.version!==1||!Array.isArray(d.sessions)||!d.profile||!Array.isArray(d.measurements))throw Error();if(!confirm("La importación reemplazará los datos actuales de DARK MUSCLE PRO. ¿Continuar?"))return;data=d;save();render();notify("Copia importada.")}catch(err){notify("Archivo inválido o incompatible.")}};reader.readAsText(file)}});
+function render(){const main=$("#main");main.innerHTML=page==="home"?home():page==="workout"?workout():page==="history"?historyPage():page==="ranks"?ranks():page==="body"?bodyPage():profile();document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page))}
+render();
+})();
+</script>
+</body>
+</html>
