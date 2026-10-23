@@ -664,13 +664,42 @@ function home() {
 }
 
 window.startWorkout=function(){activeSession={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:today(),name:"Entrenamiento",exercises:[]};go("workout")};
-function workout(){
+
+function previousExercise(name){
+ const key=String(name||"").trim().toLowerCase();
+ const previous=sessions().find(session=>
+  (session.exercises||[]).some(ex=>
+   String(ex.name||"").trim().toLowerCase()===key &&
+   (ex.sets||[]).some(set=>Number(set.kg)>0&&Number(set.reps)>0)
+  )
+ );
+ if(!previous)return null;
+ const exercise=previous.exercises.find(ex=>
+  String(ex.name||"").trim().toLowerCase()===key &&
+  (ex.sets||[]).some(set=>Number(set.kg)>0&&Number(set.reps)>0)
+ );
+ if(!exercise)return null;
+ return {
+  date:previous.date,
+  sets:(exercise.sets||[])
+   .filter(set=>Number(set.kg)>0&&Number(set.reps)>0)
+   .map(set=>({
+    kg:Number(set.kg),
+    reps:Number(set.reps),
+    rir:set.rir
+   }))
+ };
+}
+
+  function workout(){
 if(!activeSession)return title("ZONA DE ENTRENAMIENTO","A ENTRENAR.","Registra el trabajo real, serie a serie.")
 +`<div class="card"><h2>Comienza una sesión</h2><div class="field"><label>Nombre de la sesión</label><input id="newname" placeholder="Ej. Torso A · Hipertrofia" value="Torso A"></div><div class="actions"><button class="btn" onclick="beginSession()">＋ NUEVA SESIÓN</button><button class="btn secondary" onclick="loadRoutine()">Cargar ejercicios base</button></div></div>`
 +`<div class="section card"><h2>Cómo registrar</h2><p class="muted">Introduce la carga en kg, repeticiones y RIR de cada serie. Las series sin datos no cuentan como completadas.</p></div>`;
 return title("ZONA DE ENTRENAMIENTO","SESSION ACTIVE.","Registra cada serie y guarda la sesión al terminar.")
 +`<div class="card"><div class="formgrid"><div class="field"><label>Nombre de la sesión</label><input id="sessionname" value="${esc(activeSession.name)}" onchange="activeSession.name=this.value"></div><div class="field"><label>Fecha</label><input type="date" value="${esc(activeSession.date)}" onchange="activeSession.date=this.value"></div></div><div class="row"><span class="muted small">${activeSession.exercises.length} ejercicios · ${completedSets(activeSession)} series completadas</span><button class="btn secondary" onclick="addExercise()">＋ Ejercicio</button></div></div>`
-+activeSession.exercises.map((e,i)=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(e.muscle||"OTRO GRUPO")}</div><h2>${esc(e.name)}</h2></div><button class="btn danger" onclick="removeExercise(${i})">Eliminar</button></div><div class="tablewrap"><table><thead><tr><th>Serie</th><th>Kg</th><th>Reps</th><th>RIR</th><th></th></tr></thead><tbody>${e.sets.map((s,j)=>`<tr><td>${j+1}</td><td><input aria-label="Kilos" type="number" min="0" step="0.5" value="${esc(s.kg)}" onchange="setValue(${i},${j},'kg',this.value)"></td><td><input aria-label="Repeticiones" type="number" min="0" step="1" value="${esc(s.reps)}" onchange="setValue(${i},${j},'reps',this.value)"></td><td><input aria-label="RIR" type="number" min="0" max="10" step="1" value="${esc(s.rir)}" onchange="setValue(${i},${j},'rir',this.value)"></td><td><button class="btn secondary" onclick="removeSet(${i},${j})">×</button></td></tr>`).join("")}</tbody></table></div><div class="actions"><button class="btn secondary" onclick="addSet(${i})">＋ Serie</button></div></div>`).join("")
++activeSession.exercises.map((e,i)=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(e.muscle||"OTRO GRUPO")}</div><h2>${esc(e.name)}</h2></div>
+<button class="btn danger" onclick="removeExercise(${i})">Eliminar</button></div>${(()=>{const p=previousExercise(e.name);return p?`<div class="card" style="margin:12px 0;border:1px solid var(--red);background:linear-gradient(135deg,#241014,#101010)"><div class="eyebrow">🔴 REFERENCIA ANTERIOR</div><p class="muted small">Fecha: ${esc(p.date)}</p><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">${p.sets.map((s,j)=>`<div style="padding:10px;background:#111;border:1px solid var(--line);border-radius:10px"><div class="eyebrow">SERIE ${j+1}</div><strong>${s.kg} kg × ${s.reps} reps</strong><div class="muted small">RIR: ${esc(s.rir??"—")}</div></div>`).join("")}</div><p class="small">OBJETIVO: iguala o mejora las repeticiones con técnica limpia. Sube la carga solo si completas el trabajo con margen suficiente.</p></div>`:`<div class="card" style="margin:12px 0;border:1px solid var(--line)"><div class="eyebrow">⚫ SIN REGISTROS PREVIOS</div><p class="muted small">Registra este ejercicio para crear tu referencia.</p></div>`})()}<div class="tablewrap">
+<table><thead><tr><th>Serie</th><th>Kg</th><th>Reps</th><th>RIR</th><th></th></tr></thead><tbody>${e.sets.map((s,j)=>`<tr><td>${j+1}</td><td><input aria-label="Kilos" type="number" min="0" step="0.5" value="${esc(s.kg)}" onchange="setValue(${i},${j},'kg',this.value)"></td><td><input aria-label="Repeticiones" type="number" min="0" step="1" value="${esc(s.reps)}" onchange="setValue(${i},${j},'reps',this.value)"></td><td><input aria-label="RIR" type="number" min="0" max="10" step="1" value="${esc(s.rir)}" onchange="setValue(${i},${j},'rir',this.value)"></td><td><button class="btn secondary" onclick="removeSet(${i},${j})">×</button></td></tr>`).join("")}</tbody></table></div><div class="actions"><button class="btn secondary" onclick="addSet(${i})">＋ Serie</button></div></div>`).join("")
 +`<div class="actions"><button class="btn" onclick="finishWorkout()">GUARDAR ENTRENAMIENTO</button><button class="btn secondary" onclick="activeSession=null;go('workout')">Descartar sesión</button></div>`;
 }
 window.beginSession=function(){const n=$("#newname")?.value.trim()||"Entrenamiento";activeSession={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:today(),name:n,exercises:[]};go("workout")};
