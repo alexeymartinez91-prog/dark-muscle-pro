@@ -714,6 +714,15 @@ function historyPage(){
 const ss=sessions();return title("REGISTRO","TU HISTORIAL.","Cada sesión construye la siguiente.")
 +(ss.length?ss.map(s=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(s.date)}</div><h2 style="margin:4px 0">${esc(s.name)}</h2></div><span class="tag">${completedSets(s)} series</span></div><div class="grid" style="margin-bottom:0">${card("EJERCICIOS",s.exercises.length,"")}${card("VOLUMEN",Math.round(totalVolume(s)).toLocaleString("es-ES"),"kg·reps")}</div><div class="actions"><button class="btn secondary" onclick="viewSession('${esc(s.id)}')">Ver detalles</button><button class="btn danger" onclick="deleteSession('${esc(s.id)}')">Eliminar</button></div><div id="detail-${esc(s.id)}"></div></div>`).join(""):`<div class="card empty">Aún no hay entrenamientos guardados.</div>`);
 }
+  
+function previousWorkoutVolume(session){
+ const older=data.sessions
+  .filter(s=>s.id!==session.id&&s.name===session.name&&s.date<=session.date)
+  .sort((a,b)=>b.date.localeCompare(a.date));
+ if(!older.length)return null;
+ return totalVolume(older[0]);
+}
+
 window.viewSession=function(id){const s=data.sessions.find(x=>x.id===id);const el=document.getElementById("detail-"+id);if(!s||!el)return;el.innerHTML=`<div class="section tablewrap"><table><thead><tr><th>Ejercicio</th><th>Series válidas</th><th>Volumen</th></tr></thead><tbody>${s.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.sets.filter(x=>Number(x.kg)>0&&Number(x.reps)>0).length}</td><td>${Math.round(e.sets.reduce((n,x)=>n+(+x.kg||0)*(+x.reps||0),0))}</td></tr>`).join("")}</tbody></table></div>`};
 window.deleteSession=function(id){if(!confirm("¿Eliminar definitivamente esta sesión guardada?"))return;data.sessions=data.sessions.filter(s=>s.id!==id);save();render()};
 
