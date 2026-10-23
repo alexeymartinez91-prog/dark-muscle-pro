@@ -156,13 +156,199 @@ const ss=sessions();return title("REGISTRO","TU HISTORIAL.","Cada sesión constr
 window.viewSession=function(id){const s=data.sessions.find(x=>x.id===id);const el=document.getElementById("detail-"+id);if(!s||!el)return;el.innerHTML=`<div class="section tablewrap"><table><thead><tr><th>Ejercicio</th><th>Series válidas</th><th>Volumen</th></tr></thead><tbody>${s.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.sets.filter(x=>Number(x.kg)>0&&Number(x.reps)>0).length}</td><td>${Math.round(e.sets.reduce((n,x)=>n+(+x.kg||0)*(+x.reps||0),0))}</td></tr>`).join("")}</tbody></table></div>`};
 window.deleteSession=function(id){if(!confirm("¿Eliminar definitivamente esta sesión guardada?"))return;data.sessions=data.sessions.filter(s=>s.id!==id);save();render()};
 const rankNames=["IRON","BRONZE","SILVER","GOLD","RUBY","EMERALD","DIAMOND","CHAMPION","SYMMETRIC"];
-function ranks(){
-const best={};data.sessions.forEach(s=>s.exercises.forEach(e=>{const valid=e.sets.filter(x=>+x.kg>0&&+x.reps>0);if(!valid.length)return;const score=Math.max(...valid.map(x=>+x.kg*(1+(+x.reps)/30)));if(!best[e.name]||score>best[e.name].score)best[e.name]={score,muscle:e.muscle,name:e.name,sets:valid.length}}));
-const items=Object.values(best);return title("PERFORMANCE ENGINE","RANK SYSTEM.","Progresión personal provisional. No representa percentiles oficiales.")
-+`<div class="card"><div class="eyebrow">TU CLASIFICACIÓN</div><h2>Un rango empieza con datos fiables.</h2><p class="muted small">El sistema registra el mejor rendimiento estimado por ejercicio. Los niveles de esta versión son hitos internos, no equivalencias oficiales con Symmetry.</p></div>`
-+(items.length?items.map(e=>{const level=Math.max(0,Math.min(8,Math.floor(Math.log10(Math.max(1,e.score))*2)));const name=rankNames[level];return `<div class="section card"><div class="row"><div><h2>${esc(e.name)}</h2><div class="muted small">${esc(e.muscle)} · ${e.sets} series válidas en el mejor registro</div></div><span class="pill">${name}</span></div><div class="progress"><div style="width:${(level+1)/9*100}%"></div></div><p class="muted small">Mejor estimación registrada: ${e.score.toFixed(1)} puntos de carga-repeticiones.</p></div>`}).join(""):`<div class="section card empty">Registra tus entrenamientos para empezar a construir tu perfil de rendimiento.`)
-+`<div class="section card"><h2>Cómo evolucionará este sistema</h2><p class="muted small">En próximas fases añadiremos divisiones, comparación ajustada al peso corporal, métricas específicas por ejercicio, volumen efectivo por músculo y requisitos mínimos de datos. No asignaremos un nivel fiable cuando no haya información suficiente.</p></div>`;
+
+const rankNames = [
+  "IRON", "BRONZE", "SILVER", "GOLD", "RUBY",
+  "EMERALD", "DIAMOND", "CHAMPION", "SYMMETRIC"
+];
+
+function ranks() {
+  const best = {};
+
+  data.sessions.forEach(session => {
+    (session.exercises || []).forEach(exercise => {
+      const valid = (exercise.sets || []).filter(set =>
+        Number(set.kg) > 0 &&
+        Number(set.reps) >= 1 &&
+        Number(set.reps) <= 30
+      );
+
+      if (!valid.length) return;
+
+      const bestSet = valid.reduce((best, set) => {
+        const kg = Number(set.kg);
+        const reps = Number(set.reps);
+        const estimated1RM = kg * (1 + reps / 30);
+
+        return !best || estimated1RM > best.estimated1RM
+          ? { kg, reps, estimated1RM }
+          : best;
+      }, null);
+
+      const key = exercise.name.trim().toLowerCase();
+
+      if (
+        !best[key] ||
+        bestSet.estimated1RM > best[key].estimated1RM
+      ) {
+        best[key] = {
+          name: exercise.name,
+          muscle: exercise.muscle || "Sin clasificar",
+          estimated1RM: bestSet.estimated1RM,
+          kg: bestSet.kg,
+          reps: bestSet.reps,
+          sessionDate: session.date,
+          validSets: valid.length
+        };
+      }
+    });
+  });
+
+  const items = Object.values(best);
+  const bodyweight = Number(data.profile.weight) || 0;
+
+  function getRank(ratio) {
+    const thresholds = [
+      0, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2.1, 2.6
+    ];
+
+    let level = 0;
+
+    for (let i = 1; i < thresholds.length; i++) {
+      if (ratio >= thresholds[i]) level = i;
+    }
+
+    const nextThreshold = thresholds[level + 1];
+    const currentThreshold = thresholds[level];
+    const divisionProgress = nextThreshold
+      ? (ratio - currentThreshold) /
+        (nextThreshold - currentThreshold)
+      : 1;
+
+    const division = level === 8
+      ? ""
+      : divisionProgress < 1 / 3
+        ? "III"
+        : divisionProgress < 2 / 3
+          ? "II"
+          : "I";
+
+    return {
+      level,
+      name: rankNames[level],
+      division,
+      progress: nextThreshold
+        ? Math.max(0, Math.min(100, divisionProgress * 100))
+        : 100,
+      nextThreshold
+    };
+  }
+
+  const ranked = items.map(exercise => {
+    const ratio = bodyweight > 0
+      ? exercise.estimated1RM / bodyweight
+      : 0;
+
+    return {
+      ...exercise,
+      ratio,
+      rank: getRank(ratio)
+    };
+  });
+
+  const averageRatio = ranked.length
+    ? ranked.reduce((sum, exercise) => sum + exercise.ratio, 0)
+      / ranked.length
+    : 0;
+
+  const globalRank = getRank(averageRatio);
+  const enoughData = ranked.length >= 5;
+
+  return title(
+    "PERFORMANCE ENGINE",
+    "RANK SYSTEM.",
+    "Construye tu nivel ejercicio a ejercicio."
+  ) +
+  `<div class="hero">
+    <div>
+      <div class="eyebrow">DARK MUSCLE ATHLETE RANK</div>
+      <h2>${enoughData
+        ? globalRank.name + (globalRank.division
+          ? " " + globalRank.division : "")
+        : "UNRANKED"}</h2>
+      <p>${ranked.length} ejercicios con registros válidos.</p>
+    </div>
+    <span class="pill">${enoughData
+      ? "NIVEL PROVISIONAL"
+      : "DATOS INSUFICIENTES"}</span>
+  </div>
+  <div class="grid">
+    ${card("EJERCICIOS REGISTRADOS", ranked.length, "ejercicios")}
+    ${card("PESO CORPORAL", bodyweight.toLocaleString("es-ES"), "kg")}
+    ${card("SESIONES", data.sessions.length, "guardadas")}
+    ${card("RANGOS", enoughData ? "ACTIVO" : "EN PROGRESO", "")}
+  </div>
+  <div class="section card">
+    <h2>Escala de rangos</h2>
+    <p class="muted small">
+      Iron → Bronze → Silver → Gold → Ruby → Emerald →
+      Diamond → Champion → Symmetric.
+      Cada nivel, salvo Symmetric, tiene divisiones III, II y I.
+    </p>
+    <p class="muted small">
+      La puntuación usa una estimación de 1RM dividida por el peso
+      corporal. Es un modelo experimental: los ejercicios no son
+      directamente comparables y los umbrales no representan
+      percentiles reales ni niveles oficiales de Symmetry.
+    </p>
+  </div>` +
+  (ranked.length
+    ? ranked
+        .sort((a, b) => b.rank.level - a.rank.level ||
+          b.ratio - a.ratio)
+        .map(exercise => `
+          <div class="section card">
+            <div class="row">
+              <div>
+                <div class="eyebrow">${esc(exercise.muscle)}</div>
+                <h2>${esc(exercise.name)}</h2>
+                <div class="muted small">
+                  Mejor serie: ${exercise.kg} kg × ${exercise.reps} reps
+                </div>
+              </div>
+              <span class="pill">
+                ${exercise.rank.name}
+                ${exercise.rank.division
+                  ? " " + exercise.rank.division : ""}
+              </span>
+            </div>
+            <div class="progress">
+              <div style="width:${exercise.rank.progress}%"></div>
+            </div>
+            <p class="muted small">
+              1RM estimado: ${exercise.estimated1RM.toFixed(1)} kg ·
+              Relación carga/peso corporal:
+              ${bodyweight > 0
+                ? exercise.ratio.toFixed(2) + "×"
+                : "Añade tu peso en Perfil"}
+            </p>
+          </div>
+        `).join("")
+    : `<div class="section card empty">
+        Registra entrenamientos con peso y repeticiones para
+        desbloquear tus primeros rangos.
+      </div>`) +
+  `<div class="section card">
+    <h2>Cómo funciona el progreso</h2>
+    <p class="muted small">
+      III → II → I → siguiente rango. Registra más sesiones y
+      mejora tu rendimiento para actualizar tus resultados.
+      El nivel global solo se muestra a partir de cinco ejercicios
+      diferentes registrados.
+    </p>
+  </div>`;
 }
+
 function bodyPage(){const ms=[...data.measurements].sort((a,b)=>b.date.localeCompare(a.date));return title("CONTROL FÍSICO","TRACK YOUR PHYSIQUE.","Registra tendencias, no solo un número aislado.")
 +`<div class="card"><h2>Nueva medición</h2><form id="measureform"><div class="formgrid"><div class="field"><label>Fecha</label><input type="date" name="date" value="${today()}" required></div><div class="field"><label>Peso (kg)</label><input type="number" name="weight" min="0" max="400" step=".1" placeholder="79.8" required></div><div class="field"><label>Cintura (cm)</label><input type="number" name="waist" min="0" max="250" step=".1" placeholder="84"></div><div class="field"><label>Pecho (cm)</label><input type="number" name="chest" min="0" max="250" step=".1"></div><div class="field"><label>Brazo (cm)</label><input type="number" name="arm" min="0" max="100" step=".1"></div><div class="field"><label>Muslo (cm)</label><input type="number" name="thigh" min="0" max="150" step=".1"></div></div><button class="btn" type="submit">GUARDAR MEDICIÓN</button></form></div>`
 +`<div class="section card"><h2>Evolución corporal</h2>${ms.length?`<div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Peso</th><th>Cintura</th><th>Pecho</th><th>Brazo</th><th>Muslo</th></tr></thead><tbody>${ms.map(m=>`<tr><td>${esc(m.date)}</td><td>${m.weight} kg</td><td>${m.waist||"—"}</td><td>${m.chest||"—"}</td><td>${m.arm||"—"}</td><td>${m.thigh||"—"}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Todavía no hay mediciones.</div>`}</div>`}
