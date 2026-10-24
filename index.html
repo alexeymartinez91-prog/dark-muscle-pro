@@ -690,6 +690,50 @@ function previousExercise(name){
    }))
  };
 }
+  
+function progressionAdvice(previous){
+ if(!previous||!previous.sets||!previous.sets.length){
+  return {
+   title:"ESTABLECE TU REFERENCIA",
+   detail:"Registra tus primeras series válidas para crear una base de progresión."
+  };
+ }
+ const sets=previous.sets.filter(s=>s.kg>0&&s.reps>0);
+ if(!sets.length){
+  return {
+   title:"SIN DATOS SUFICIENTES",
+   detail:"Registra kilos y repeticiones para obtener una recomendación."
+  };
+ }
+ const allHaveRir=sets.every(s=>s.rir!==""&&s.rir!==null&&s.rir!==undefined&&Number.isFinite(Number(s.rir)));
+ const rirValues=sets.map(s=>Number(s.rir));
+ const avgRir=allHaveRir?rirValues.reduce((a,b)=>a+b,0)/rirValues.length:null;
+ const avgReps=sets.reduce((a,s)=>a+s.reps,0)/sets.length;
+ const sameLoad=sets.every(s=>s.kg===sets[0].kg);
+ if(!allHaveRir){
+  return {
+   title:"MANTÉN Y REGISTRA EL RIR",
+   detail:"Repite una carga controlada y registra el RIR para valorar mejor la progresión."
+  };
+ }
+ if(avgRir<=1){
+  return {
+   title:"CONSOLIDA LA CARGA",
+   detail:"Terminaste cerca del fallo. Mantén el peso y prioriza la técnica y la recuperación."
+  };
+ }
+ if(avgRir>=3&&sameLoad){
+  return {
+   title:"VALORA UNA SUBIDA PEQUEÑA",
+   detail:"El RIR medio indica margen. Si alcanzaste el rango de repeticiones previsto con técnica limpia, prueba el menor incremento disponible."
+  };
+ }
+ return {
+  title:"PROGRESA EN REPETICIONES",
+  detail:"Mantén la carga e intenta sumar alguna repetición con la misma técnica y un margen similar."
+ };
+}
+
 
   function workout(){
 if(!activeSession)return title("ZONA DE ENTRENAMIENTO","A ENTRENAR.","Registra el trabajo real, serie a serie.")
@@ -698,7 +742,9 @@ if(!activeSession)return title("ZONA DE ENTRENAMIENTO","A ENTRENAR.","Registra e
 return title("ZONA DE ENTRENAMIENTO","SESSION ACTIVE.","Registra cada serie y guarda la sesión al terminar.")
 +`<div class="card"><div class="formgrid"><div class="field"><label>Nombre de la sesión</label><input id="sessionname" value="${esc(activeSession.name)}" onchange="activeSession.name=this.value"></div><div class="field"><label>Fecha</label><input type="date" value="${esc(activeSession.date)}" onchange="activeSession.date=this.value"></div></div><div class="row"><span class="muted small">${activeSession.exercises.length} ejercicios · ${completedSets(activeSession)} series completadas</span><button class="btn secondary" onclick="addExercise()">＋ Ejercicio</button></div></div>`
 +activeSession.exercises.map((e,i)=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(e.muscle||"OTRO GRUPO")}</div><h2>${esc(e.name)}</h2></div>
-<button class="btn danger" onclick="removeExercise(${i})">Eliminar</button></div>${(()=>{const p=previousExercise(e.name);return p?`<div class="card" style="margin:12px 0;border:1px solid var(--red);background:linear-gradient(135deg,#241014,#101010)"><div class="eyebrow">🔴 REFERENCIA ANTERIOR</div><p class="muted small">Fecha: ${esc(p.date)}</p><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">${p.sets.map((s,j)=>`<div style="padding:10px;background:#111;border:1px solid var(--line);border-radius:10px"><div class="eyebrow">SERIE ${j+1}</div><strong>${s.kg} kg × ${s.reps} reps</strong><div class="muted small">RIR: ${esc(s.rir??"—")}</div></div>`).join("")}</div><p class="small">OBJETIVO: iguala o mejora las repeticiones con técnica limpia. Sube la carga solo si completas el trabajo con margen suficiente.</p></div>`:`<div class="card" style="margin:12px 0;border:1px solid var(--line)"><div class="eyebrow">⚫ SIN REGISTROS PREVIOS</div><p class="muted small">Registra este ejercicio para crear tu referencia.</p></div>`})()}<div class="tablewrap">
+<button class="btn danger" onclick="removeExercise(${i})">Eliminar</button></div>${(()=> { const p=previousExercise(e.name);const advice=progressionAdvice(p);return p?`<div class="card" style="margin:12px 0;border:1px solid var(--red);background:linear-gradient(135deg,#241014,#101010)"><div class="eyebrow">🔴 REFERENCIA ANTERIOR</div><p class="muted small">Fecha: ${esc(p.date)}</p><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">${p.sets.map((s,j)=>`<div style="padding:10px;background:#111;border:1px solid var(--line);border-radius:10px"><div class="eyebrow">SERIE ${j+1}</div><strong>${s.kg} kg × ${s.reps} reps</strong><div class="muted small">RIR: ${esc(s.rir??"—")}</div></div>`).join("")} 
+</div><p class="small">OBJETIVO: iguala o mejora las repeticiones con técnica limpia. Sube la carga solo si completas el trabajo con margen suficiente.</p><p class="eyebrow" style="margin-top:12px">📈 RECOMENDACIÓN DE PROGRESIÓN</p><strong>${esc(advice.title)}</strong><p class="small">${esc(advice.detail)}</p></div>
+`:`<div class="card" style="margin:12px 0;border:1px solid var(--line)"><div class="eyebrow">⚫ SIN REGISTROS PREVIOS</div><p class="muted small">Registra este ejercicio para crear tu referencia.</p></div>`})()}<div class="tablewrap">
 <table><thead><tr><th>Serie</th><th>Kg</th><th>Reps</th><th>RIR</th><th></th></tr></thead><tbody>${e.sets.map((s,j)=>`<tr><td>${j+1}</td><td><input aria-label="Kilos" type="number" min="0" step="0.5" value="${esc(s.kg)}" onchange="setValue(${i},${j},'kg',this.value)"></td><td><input aria-label="Repeticiones" type="number" min="0" step="1" value="${esc(s.reps)}" onchange="setValue(${i},${j},'reps',this.value)"></td><td><input aria-label="RIR" type="number" min="0" max="10" step="1" value="${esc(s.rir)}" onchange="setValue(${i},${j},'rir',this.value)"></td><td><button class="btn secondary" onclick="removeSet(${i},${j})">×</button></td></tr>`).join("")}</tbody></table></div><div class="actions"><button class="btn secondary" onclick="addSet(${i})">＋ Serie</button></div></div>`).join("")
 +`<div class="actions"><button class="btn" onclick="finishWorkout()">GUARDAR ENTRENAMIENTO</button><button class="btn secondary" onclick="activeSession=null;go('workout')">Descartar sesión</button></div>`;
 }
