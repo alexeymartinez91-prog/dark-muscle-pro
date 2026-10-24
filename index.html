@@ -712,16 +712,22 @@ window.setValue=function(i,j,k,v){activeSession.exercises[i].sets[j][k]=v};
 window.finishWorkout=function(){if(!activeSession)return;if(!activeSession.exercises.length){notify("Añade al menos un ejercicio antes de guardar.");return}if(!completedSets(activeSession)){notify("Registra al menos una serie con kg y repeticiones.");return}data.sessions.push(JSON.parse(JSON.stringify(activeSession)));if(save()){activeSession=null;notify("Entrenamiento guardado correctamente.");go("history")}};
 function historyPage(){
 const ss=sessions();return title("REGISTRO","TU HISTORIAL.","Cada sesión construye la siguiente.")
-+(ss.length?ss.map(s=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(s.date)}</div><h2 style="margin:4px 0">${esc(s.name)}</h2></div><span class="tag">${completedSets(s)} series</span></div><div class="grid" style="margin-bottom:0">${card("EJERCICIOS",s.exercises.length,"")}${card("VOLUMEN",Math.round(totalVolume(s)).toLocaleString("es-ES"),"kg·reps")}</div><div class="actions"><button class="btn secondary" onclick="viewSession('${esc(s.id)}')">Ver detalles</button><button class="btn danger" onclick="deleteSession('${esc(s.id)}')">Eliminar</button></div><div id="detail-${esc(s.id)}"></div></div>`).join(""):`<div class="card empty">Aún no hay entrenamientos guardados.</div>`);
++(ss.length?ss.map(s=>`<div class="section card"><div class="row"><div><div class="eyebrow">${esc(s.date)}</div><h2 style="margin:4px 0">${esc(s.name)}</h2></div><span class="tag">${completedSets(s)} series</span></div><div class="grid" style="margin-bottom:0">${card("EJERCICIOS",s.exercises.length,"")}${card("VOLUMEN",Math.round(totalVolume(s)).toLocaleString("es-ES"),"kg·reps")}
+</div>${(()=>{const prev=previousWorkoutVolume(s);if(prev===null)return "";const now=totalVolume(s);const diff=now-prev;return `<div class="card" style="margin:12px 0;border:1px solid var(--red);background:linear-gradient(135deg,#241014,#101010)"><div class="eyebrow">📈 COMPARACIÓN DE VOLUMEN</div><div class="row"><div><div class="muted small">SESIÓN ANTERIOR</div><strong>${Math.round(prev).toLocaleString("es-ES")} kg·reps</strong></div><div><div class="muted small">ESTA SESIÓN</div><strong>${Math.round(now).toLocaleString("es-ES")} kg·reps</strong></div></div><p class="small" style="margin-bottom:0">${diff>0?"▲ +"+Math.round(diff).toLocaleString("es-ES")+" kg·reps de volumen":diff<0?"▼ "+Math.round(diff).toLocaleString("es-ES")+" kg·reps de volumen":"＝ Volumen igual que la sesión anterior"}</p></div>`})()}<div class="actions">
+<button class="btn secondary" onclick="viewSession('${esc(s.id)}')">Ver detalles</button><button class="btn danger" onclick="deleteSession('${esc(s.id)}')">Eliminar</button></div><div id="detail-${esc(s.id)}"></div></div>`).join(""):`<div class="card empty">Aún no hay entrenamientos guardados.</div>`);
 }
   
+
 function previousWorkoutVolume(session){
- const older=data.sessions
-  .filter(s=>s.id!==session.id&&s.name===session.name&&s.date<=session.date)
-  .sort((a,b)=>b.date.localeCompare(a.date));
- if(!older.length)return null;
- return totalVolume(older[0]);
+ const index=data.sessions.findIndex(s=>s.id===session.id);
+ if(index<=0)return null;
+ for(let i=index-1;i>=0;i--){
+  const older=data.sessions[i];
+  if(older.name===session.name)return totalVolume(older);
+ }
+ return null;
 }
+
 
 window.viewSession=function(id){const s=data.sessions.find(x=>x.id===id);const el=document.getElementById("detail-"+id);if(!s||!el)return;el.innerHTML=`<div class="section tablewrap"><table><thead><tr><th>Ejercicio</th><th>Series válidas</th><th>Volumen</th></tr></thead><tbody>${s.exercises.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.sets.filter(x=>Number(x.kg)>0&&Number(x.reps)>0).length}</td><td>${Math.round(e.sets.reduce((n,x)=>n+(+x.kg||0)*(+x.reps||0),0))}</td></tr>`).join("")}</tbody></table></div>`};
 window.deleteSession=function(id){if(!confirm("¿Eliminar definitivamente esta sesión guardada?"))return;data.sessions=data.sessions.filter(s=>s.id!==id);save();render()};
