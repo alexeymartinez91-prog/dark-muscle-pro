@@ -797,7 +797,12 @@ window.addExercise=function(){const name=prompt("Nombre del ejercicio:");if(!nam
 window.removeExercise=function(i){activeSession.exercises.splice(i,1);render()};
 window.addSet=function(i){activeSession.exercises[i].sets.push({kg:"",reps:"",rir:2});render()};
 window.removeSet=function(i,j){activeSession.exercises[i].sets.splice(j,1);render()};
-window.setValue=function(i,j,k,v){activeSession.exercises[i].sets[j][k]=v};
+
+window.setValue=function(i,j,k,v){
+ activeSession.exercises[i].sets[j][k]=v;
+ render();
+};
+
 window.finishWorkout=function(){if(!activeSession)return;if(!activeSession.exercises.length){notify("Añade al menos un ejercicio antes de guardar.");return}if(!completedSets(activeSession)){notify("Registra al menos una serie con kg y repeticiones.");return}data.sessions.push(JSON.parse(JSON.stringify(activeSession)));if(save()){activeSession=null;notify("Entrenamiento guardado correctamente.");go("history")}};
 function historyPage(){
 const ss=sessions();return title("REGISTRO","TU HISTORIAL.","Cada sesión construye la siguiente.")
